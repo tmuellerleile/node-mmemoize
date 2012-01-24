@@ -1,0 +1,18 @@
+{
+  "name": "mmemoize",
+  "version": "0.1.0a",
+  "description": "Memoize asynchronous functions using memcached",
+  "keywords": ["memoize", "memcached"],
+  "author": "Tobias Muellerleile <tobias@muellerleile.net> (http://tobias.muellerleile.net)",
+  "main": "index",
+  "dependencies": {
+    "memcached": ">=0.0.7"
+  },
+  "devDependencies": {
+    "nodeunit": "*",
+    "async": "*"
+  },
+  "engines": {
+    "node": "*"
+  }
+}
