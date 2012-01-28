@@ -1,27 +1,23 @@
-function MMemoize(memcached, config) {
-  this.mcdInstance = memcached;
-  this.config = config;
-}
-module.exports = MMemoize;
+var mmemoize = function (memcached, config) {
+  var that = {};
 
-MMemoize.prototype = {
-  memoize : function(fct, keyPrefix) {
+  var memoize = function(fct, keyPrefix) {
     if (fct._unmemoized !== undefined) { return; } // fct() already memoized
-    var mcd = this.mcdInstance;
-    var config = this.config;
+    var unmemoized = fct; // save original function for dememoization purposes
 
     var mFct = function() {
       var args = Array.prototype.slice.call(arguments);
-      var fctCallback;
+      var fctCallback,
+          key;
       if (typeof(args.slice(-1).pop()) == 'function') {
         fctCallback = args.pop(); // cache and remove original callback
       }
-      var key = keyPrefix + ':' + JSON.stringify(args);
-      mcd.get(key, function (err, mcdResult) {
+      key = keyPrefix + ':' + JSON.stringify(args);
+      memcached.get(key, function (err, mcdResult) {
         if (err !== undefined || mcdResult === undefined || mcdResult === false) { // memcache error or miss:
           args.push(function () {  // register our new callback:
             var fctResult = Array.prototype.slice.call(arguments);
-            mcd.set(key, JSON.stringify(fctResult), config.ttl, function (err, result) {
+            memcached.set(key, JSON.stringify(fctResult), config.ttl, function (err, result) {
               // NOTE that we *ignore any memcache errors* here!
               if (fctCallback !== undefined) {
                 fctCallback.apply(null, fctResult); // call original callback
@@ -38,12 +34,22 @@ MMemoize.prototype = {
         }
       });
     };
-    mFct._unmemoized = fct; // save original function for dememoization purposes
-    return mFct;
-  },
 
-  dememoize : function(fct) { // shamelessly borrowed from https://github.com/caolan/async
-    if (fct._unmemoized === undefined) { return; } // not memoized
-      return fct._unmemoized;
-    }
+    var dememoize = function() {
+      return unmemoized;
+    };
+    mFct.dememoize = dememoize;
+
+    return mFct;
+  };
+  that.memoize = memoize;
+
+  var dememoize = function(fct) { // shamelessly borrowed from https://github.com/caolan/async
+    if (fct.dememoize === undefined) { return fct; } // not memoized
+    return fct.dememoize();
+  };
+  that.dememoize = dememoize;
+
+  return that;
 };
+module.exports = mmemoize;

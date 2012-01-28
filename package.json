@@ -5,6 +5,10 @@
   "keywords": ["memoize", "memcached"],
   "author": "Tobias Muellerleile <tobias@muellerleile.net> (http://tobias.muellerleile.net)",
   "main": "index",
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/tmuellerleile/node-mmemoize.git"
+  },
   "dependencies": {
     "memcached": ">=0.0.7"
   },

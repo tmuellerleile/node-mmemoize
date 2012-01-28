@@ -3,17 +3,17 @@ var Memcached = require('memcached'),
 
 var memcached = new Memcached('localhost:11211', { timeout: 100 });
 
-var MMemoize = require('../');
-var MM = new MMemoize(memcached, { ttl: 10 }); // no need for long ttls here
+var mmemoize = require('../');
+var memoizer = mmemoize(memcached, { ttl: 10 }); // no need for long ttls here
 
 
 exports['baseline test'] = function (test) {
   test.expect(4 + 1);
 
-  function a(callback) {
+  var a = function (callback) {
     test.ok(true, 'Function called');
     callback(null, 2 * 2);
-  }
+  };
 
   async.series([
     a, a, a, a
@@ -25,17 +25,33 @@ exports['baseline test'] = function (test) {
 
 
 exports['(de)memoization cache'] = function (test) {
-  test.expect(2);
+  test.expect(7);
 
-  var a = MM.memoize(function (callback) {
-    test.ok(true, 'Function called');
+  var a = function (callback) {
+    test.ok(true, 'a called');
     callback(null, 2 * 2);
-  }, 'a');
-  test.notStrictEqual(a._unmemoized, undefined, 'Dememoization cache ok');
+  };
 
-  a = MM.dememoize(a);
-  test.strictEqual(a._unmemoized, undefined, 'Dememoization cache not present');
+  var b = function (callback) {
+    test.ok(true, 'b called');
+    callback(null, 3 * 3);
+  };
 
+  a_m = memoizer.memoize(a, 'a');
+  test.notStrictEqual(a_m.dememoize, undefined, 'Dememoization cache ok');
+  test.strictEqual(b.dememoize, undefined, 'Dememoization cache not present');
+
+  b_m = memoizer.memoize(b, 'b');
+  test.notStrictEqual(b_m.dememoize, undefined, 'Dememoization cache ok');
+
+  a_d = memoizer.dememoize(a_m);
+  test.strictEqual(a_d.dememoize, undefined, 'Dememoization cache not present');
+
+  b_d = memoizer.dememoize(b_m);
+  test.strictEqual(b_d.dememoize, undefined, 'Dememoization cache not present');
+
+  test.equal(a, a_d, 'Dememoization cache working');
+  test.equal(b, b_d, 'Dememoization cache working');
 
   test.done();
 };
@@ -44,7 +60,7 @@ exports['(de)memoization cache'] = function (test) {
 exports['memoization (functional test)'] = function (test) {
   test.expect(1 + 1);
 
-  var a = MM.memoize(function (callback) {
+  var a = memoizer.memoize(function (callback) {
     test.ok(true, 'Function called');
     callback(null, 2 * 2);
   }, 'a');
@@ -69,7 +85,7 @@ exports['memoization (functional test)'] = function (test) {
 exports['dememoization (functional test)'] = function (test) {
   test.expect(3 + 2);
 
-  var a = MM.memoize(function (callback) {
+  var a = memoizer.memoize(function (callback) {
     test.ok(true, 'Function called');
     callback(null, 2 * 2);
   }, 'a');
@@ -88,7 +104,7 @@ exports['dememoization (functional test)'] = function (test) {
     test.deepEqual(results, [[true], 4, 4], 'Return values check');
     async.series([
       function (callback) {
-        a = MM.dememoize(a);
+        a = a.dememoize();
         callback(null, true);
       },
       function (callback) { // -> 2 test calls inside a
@@ -108,7 +124,7 @@ exports['dememoization (functional test)'] = function (test) {
 exports['memoization key generation (functional test)'] = function (test) {
   test.expect(2 + 1);
 
-  var a = MM.memoize(function (param, callback) {
+  var a = memoizer.memoize(function (param, callback) {
     test.ok(true, 'Function called');
     callback(null, param * param);
   }, 'a');
@@ -144,7 +160,7 @@ exports['memoization key generation (functional test)'] = function (test) {
 exports['cache hit deserialization (functional test)'] = function (test) {
   test.expect(1 + 1);
 
-  var a = MM.memoize(function (param, callback) {
+  var a = memoizer.memoize(function (param, callback) {
     test.ok(true, 'Function called');
     callback(null, { 'param': param });
   }, 'a');

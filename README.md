@@ -1,28 +1,33 @@
-# node-mmemoize.js
+# node-mmemoize
 Memoize asynchronous function calls using memcached
 
 ## Usage
 
     var Memcached = require('memcached'),
-        MMemoize = require('mmemoize');
+        mmemoize = require('mmemoize');
 
     var memcached = new Memcached('localhost:11211'),
-        mmemoize = new MMemoize(memcached, { ttl: 120 }); // in seconds
+        mmemoizer = mmemoize(memcached, { ttl: 120 }); // in seconds
 
-    function a(b, callback) {
-       return callback(null, 'Hooray, ' + b);
+    var a = function (/* someArguments, */ callback) {
+       // some potentially expensive computations, database fetches etc.
+       // ...
+       return callback(potentialErrors, theResult);
     }
 
-    a = mmemoize.memoize(a, 'a');
-    a('it works!', function (err, result) {
-       console.log(result);
+    a = mmemoizer.memoize(a, 'a');
+    a(/* someArguments, */ function (err, result) {
+       // process results
+       // ...
     });
+
+    // just in case:
+    a = a.dememoize(); // or: a = mmemoizer.dememoize(a);
 
 ## Deployment dependencies
 - [node-memcached](https://github.com/3rd-Eden/node-memcached) (of course)
 
 ## Tests
 - using [nodeunit](https://github.com/caolan/nodeunit)
-- with running memcache instance (of course)
-
-    $ nodeunit tests/tests.js
+- with running memcached instance (of course)
+- `$ nodeunit tests/tests.js`
