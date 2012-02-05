@@ -37,17 +37,17 @@ exports['(de)memoization cache'] = function (test) {
     callback(null, 3 * 3);
   };
 
-  a_m = memoizer.memoize(a, 'a');
+  var a_m = memoizer.memoize(a, 'a');
   test.notStrictEqual(a_m.dememoize, undefined, 'Dememoization cache ok');
   test.strictEqual(b.dememoize, undefined, 'Dememoization cache not present');
 
-  b_m = memoizer.memoize(b, 'b');
+  var b_m = memoizer.memoize(b, 'b');
   test.notStrictEqual(b_m.dememoize, undefined, 'Dememoization cache ok');
 
-  a_d = memoizer.dememoize(a_m);
+  var a_d = memoizer.dememoize(a_m);
   test.strictEqual(a_d.dememoize, undefined, 'Dememoization cache not present');
 
-  b_d = memoizer.dememoize(b_m);
+  var b_d = memoizer.dememoize(b_m);
   test.strictEqual(b_d.dememoize, undefined, 'Dememoization cache not present');
 
   test.equal(a, a_d, 'Dememoization cache working');
