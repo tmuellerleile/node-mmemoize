@@ -2,7 +2,7 @@ var mmemoize = function (memcached, config) {
   var that = {};
 
   var memoize = function (fct, keyPrefix) {
-    if (fct._unmemoized !== undefined) { return; } // fct() already memoized
+    if (fct.dememoize !== undefined) { return; } // fct() already memoized
     var unmemoized = fct; // save original function for dememoization purposes
 
     var mFct = function () {
