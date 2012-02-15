@@ -1,8 +1,12 @@
 var mmemoize = function (memcached, config) {
-  var configDefaults = {
-    ttl: 120
-  };
+  var crypto = require('crypto');
+
   var that = {};
+
+  var configDefaults = {
+    ttl: 120,
+    hashAlgorithm: 'sha1'
+  };
   var cProp;
   for (cProp in configDefaults) {
     if (configDefaults.hasOwnProperty(cProp) && config[cProp] === undefined) {
@@ -21,7 +25,7 @@ var mmemoize = function (memcached, config) {
       if (typeof args.slice(-1).pop() === 'function') {
         fctCallback = args.pop(); // cache and remove original callback
       }
-      key = keyPrefix + ':' + JSON.stringify(args);
+      key = calcKey(keyPrefix, args);
       memcached.get(key, function (err, mcdResult) {
         if (err !== undefined || mcdResult === undefined || mcdResult === false) { // memcache error or miss:
           args.push(function () {  // register our new callback:
@@ -58,6 +62,24 @@ var mmemoize = function (memcached, config) {
     return fct.dememoize();
   };
   that.dememoize = dememoize;
+
+  // PRIVATE METHODS:
+  var calcKey = function (prefix, args) {
+    var key,
+        hasher;
+    if (typeof args !== 'string') {
+      args = JSON.stringify(args);
+    }
+    if (config.hashAlgorithm !== null) { // hash arguments:
+      hasher = crypto.createHash(config.hashAlgorithm);
+      hasher.update(args);
+      key = prefix + ':' + hasher.digest('hex');
+    }
+    else {
+      key = prefix + ':' + args;
+    }
+    return key;
+  };
 
   return that;
 };
