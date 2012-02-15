@@ -1,5 +1,14 @@
 var mmemoize = function (memcached, config) {
+  var configDefaults = {
+    ttl: 120
+  };
   var that = {};
+  var cProp;
+  for (cProp in configDefaults) {
+    if (configDefaults.hasOwnProperty(cProp) && config[cProp] === undefined) {
+      config[cProp] = configDefaults[cProp];
+    }
+  }
 
   var memoize = function (fct, keyPrefix) {
     if (fct.dememoize !== undefined) { return; } // fct() already memoized
