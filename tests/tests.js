@@ -93,7 +93,7 @@ exports['dememoization (functional test)'] = function (test) {
   async.series([
     function (callback) {
       memcached.flush(function (err, result) {
-        if (err === undefined || err.length === 0) { // deal with memcached module's weird error handling:
+        if (err === undefined || err === null || err.length === 0) {
           err = null;
         }
         callback(err, result);
