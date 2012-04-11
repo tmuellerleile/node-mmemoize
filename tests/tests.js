@@ -57,7 +57,7 @@ exports['(de)memoization cache'] = function (test) {
 };
 
 
-exports['memoization (functional test)'] = function (test) {
+exports['memoization'] = function (test) {
   test.expect(1 + 1);
 
   var a = memoizer.memoize(function (callback) {
@@ -111,7 +111,7 @@ exports['memoization with custom ttl'] = function (test) {
 };
 
 
-exports['dememoization (functional test)'] = function (test) {
+exports['dememoization'] = function (test) {
   test.expect(3 + 2);
 
   var a = memoizer.memoize(function (callback) {
@@ -150,7 +150,7 @@ exports['dememoization (functional test)'] = function (test) {
 };
 
 
-exports['memoization key generation (functional test)'] = function (test) {
+exports['memoization key generation'] = function (test) {
   test.expect(2 + 1);
 
   var a = memoizer.memoize(function (param, callback) {
@@ -186,7 +186,7 @@ exports['memoization key generation (functional test)'] = function (test) {
 };
 
 
-exports['cache hit deserialization (functional test)'] = function (test) {
+exports['cache hit deserialization'] = function (test) {
   test.expect(1 + 1);
 
   var a = memoizer.memoize(function (param, callback) {
