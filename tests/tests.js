@@ -82,6 +82,35 @@ exports['memoization (functional test)'] = function (test) {
 };
 
 
+exports['memoization with custom ttl'] = function (test) {
+  test.expect(1 + 1 + 1);
+
+  var a = memoizer.memoize(function (callback) {
+    test.ok(true, 'Function called');
+    callback(null, 2 * 2);
+  }, 'a', 1); // memoize result for 1s only!
+
+  async.series([
+    function (callback) {
+      memcached.flush(function (err, result) {
+        if (err === undefined || err === null || err.length === 0) {
+          err = null;
+        }
+        callback(err, result);
+      });
+    },
+    a, a, // -> 1 test call inside a
+    function (callback) {
+      setTimeout(callback, 2000, null, true); // wait for 2s
+    },
+    a, a // -> 1 test call inside a
+  ], function (err, results) {
+    test.deepEqual(results, [[true], 4, 4, true, 4, 4], 'Return values check');
+    test.done();
+  });
+};
+
+
 exports['dememoization (functional test)'] = function (test) {
   test.expect(3 + 2);
 

@@ -14,9 +14,13 @@ var mmemoize = function (memcached, config) {
     }
   }
 
-  var memoize = function (fct, keyPrefix) {
+  var memoize = function (fct, keyPrefix, ttl) {
     if (fct.dememoize !== undefined) { return; } // fct() already memoized
     var unmemoized = fct; // save original function for dememoization purposes
+
+    if (ttl === undefined) {
+      ttl = config.ttl;
+    }
 
     var mFct = function () {
       var args = Array.prototype.slice.call(arguments);
@@ -30,7 +34,7 @@ var mmemoize = function (memcached, config) {
         if (err !== undefined || mcdResult === undefined || mcdResult === false) { // memcache error or miss:
           args.push(function () {  // register our new callback:
             var fctResult = Array.prototype.slice.call(arguments);
-            memcached.set(key, JSON.stringify(fctResult), config.ttl, function (err, result) {
+            memcached.set(key, JSON.stringify(fctResult), ttl, function (err, result) {
               // NOTE that we *ignore any memcache errors* here!
               if (fctCallback !== undefined) {
                 fctCallback.apply(null, fctResult); // call original callback

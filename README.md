@@ -15,7 +15,7 @@ Memoize asynchronous function calls using memcached
        return callback(potentialErrors, theResult);
     }
 
-    a = mmemoizer.memoize(a, 'a');
+    a = mmemoizer.memoize(a, 'a' /*, customTTL */);
     a(/* someArguments, */ function (err, result) {
        // process results
        // ...
@@ -28,7 +28,7 @@ Memoize asynchronous function calls using memcached
 
 Send config object as the second parameter of mmemoize(), use the following options:
 
-- `ttl`: Key TTL in seconds; default: `120`
+- `ttl`: Default key TTL in seconds; default: `120`
 - `hashAlgorithm`: Algorithm used for hashing function arguments in memcached keys, set to `null` for no hashing at all, for possible values see [node.js' crypto documentation](http://nodejs.org/docs/latest/api/crypto.html#crypto.createHash); default: `sha1`
 
 ## Deployment dependencies
