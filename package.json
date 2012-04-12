@@ -7,7 +7,7 @@
   "main": "index",
   "repository": {
     "type": "git",
-    "url": "http://github.com/tmuellerleile/node-mmemoize.git"
+    "url": "git://github.com/tmuellerleile/node-mmemoize.git"
   },
   "dependencies": {
     "memcached": ">=0.0.7"
