@@ -8,6 +8,9 @@ var mmemoize = function (memcached, config) {
     hashAlgorithm: 'sha1'
   };
   var cProp;
+  if (config === undefined) {
+    config = {};
+  }
   for (cProp in configDefaults) {
     if (configDefaults.hasOwnProperty(cProp) && config[cProp] === undefined) {
       config[cProp] = configDefaults[cProp];

@@ -1,6 +1,6 @@
 {
   "name": "mmemoize",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Memoize asynchronous functions using memcached",
   "keywords": ["memoize", "memcached"],
   "author": "Tobias Muellerleile <tobias@muellerleile.net> (http://tobias.muellerleile.net)",
