@@ -13,10 +13,13 @@
     "memcached": ">=0.0.7"
   },
   "devDependencies": {
-    "nodeunit": "*",
+    "mocha": "*",
     "async": "*"
   },
   "engines": {
     "node": "*"
+  },
+  "scripts": {
+    "test": "./node_modules/.bin/mocha"
   }
 }
