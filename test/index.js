@@ -3,10 +3,12 @@ var assert = require('assert');
 var Memcached = require('memcached'),
     async = require('async');
 
-var memcached = new Memcached('localhost:11211', { timeout: 100 });
+var memcached = new Memcached('localhost:11211', { timeout: 100, retries: 1, retry: 1 });
+var memcachedBroken = new Memcached('localhost:9876', { timeout: 1, retries: 0, retry: 1 });
 
 var mmemoize = require('../');
 var memoizer = mmemoize(memcached, { ttl: 10 }); // no need for long ttls here
+var memoizerBroken = mmemoize(memcachedBroken, { ttl: 10 }); // no need for long ttls here
 
 
 describe('Baseline', function () {
@@ -82,6 +84,23 @@ describe('Memoization', function () {
     ], function (err, result) {
       assert.deepEqual(result, [4, 4, 4, 4]);
       assert.strictEqual(a_calls, 1);
+      done();
+    });
+  });
+
+  it('should fail gracefully without working memcached', function (done) {
+    var a_calls = 0;
+
+    var a = memoizerBroken.memoize(function (callback) {
+      a_calls++;
+      callback(null, 2 * 2);
+    }, 'a');
+
+    async.series([
+      a, a, a, a // -> 4 calls inside a
+    ], function (err, result) {
+      assert.deepEqual(result, [4, 4, 4, 4]);
+      assert.strictEqual(a_calls, 4);
       done();
     });
   });
