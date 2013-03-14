@@ -35,6 +35,6 @@ Send config object as the second parameter of mmemoize(), use the following opti
 - [node-memcached](https://github.com/3rd-Eden/node-memcached) (of course)
 
 ## Tests
-- using [nodeunit](https://github.com/caolan/nodeunit)
+- using [mocha](http://visionmedia.github.com/mocha/)
 - with running memcached instance (of course)
-- `$ nodeunit tests/tests.js`
+- `$ mocha`
