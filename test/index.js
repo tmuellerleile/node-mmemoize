@@ -172,6 +172,26 @@ describe('Memoization', function () {
       done();
     });
   });
+
+  it('should maintain context', function (done) {
+    var a_calls = 0;
+
+    this.aRandomProperty = 42;
+
+    var a = function (callback) {
+      a_calls++;
+      callback(null, this.aRandomProperty);
+    };
+    a = memoizer.memoize(a, 'a');
+
+    async.series([
+      a.bind(this), a.bind(this), a.bind(this), a.bind(this) // -> 1 test call inside a
+    ], function (err, result) {
+      assert.deepEqual(result, [42, 42, 42, 42]);
+      assert.strictEqual(a_calls, 1);
+      done();
+    });
+  });
 });
 
 

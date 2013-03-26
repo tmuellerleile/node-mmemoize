@@ -26,6 +26,7 @@ var mmemoize = function (memcached, config) {
     }
 
     var mFct = function () {
+      var _this = this;
       var args = Array.prototype.slice.call(arguments);
       var fctCallback,
           key;
@@ -40,16 +41,16 @@ var mmemoize = function (memcached, config) {
             memcached.set(key, JSON.stringify(fctResult), ttl, function (err, result) {
               // NOTE that we *ignore any memcache errors* here!
               if (fctCallback !== undefined) {
-                fctCallback.apply(null, fctResult); // call original callback
+                fctCallback.apply(_this, fctResult); // call original callback
               }
             });
           });
-          fct.apply(null, args); // actually perform function call for memoization
+          fct.apply(_this, args); // actually perform function call for memoization
         }
         else { // cache hit:
           mcdResult = JSON.parse(mcdResult);
           if (fctCallback !== undefined) {
-            fctCallback.apply(null, mcdResult); // call original callback
+            fctCallback.apply(_this, mcdResult); // call original callback
           }
         }
       });
