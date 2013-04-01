@@ -11,8 +11,8 @@ var memoizer = mmemoize(memcached, { ttl: 10 }); // no need for long ttls here
 var memoizerBroken = mmemoize(memcachedBroken, { ttl: 10 }); // no need for long ttls here
 
 
-describe('Baseline', function () {
-  it('should work without memoization', function (done) {
+suite('Baseline', function () {
+  test('function works without memoization', function (done) {
     var a = function (callback) {
       callback(null, 2 * 2);
     };
@@ -27,7 +27,7 @@ describe('Baseline', function () {
 });
 
 
-describe('(De)memoization cache', function () {
+suite('(De)memoization cache', function () {
   var a = function (callback) {
     callback(null, 2 * 2);
   };
@@ -36,20 +36,16 @@ describe('(De)memoization cache', function () {
     callback(null, 3 * 3);
   };
 
-  it('should exist', function (done) {
+  test('is present (only) after memoization', function (done) {
     var a_m = memoizer.memoize(a, 'a');
     assert.notStrictEqual(a_m.dememoize, undefined);
     assert.strictEqual(b.dememoize, undefined);
-    done();
-  });
-
-  it('should really exist', function (done) {
     var b_m = memoizer.memoize(b, 'b');
     assert.notStrictEqual(b_m.dememoize, undefined);
     done();
   });
 
-  it('should work', function (done) {
+  test('actually works', function (done) {
     var a_m = memoizer.memoize(a, 'a');
     var a_d = memoizer.dememoize(a_m);
     assert.strictEqual(a_d.dememoize, undefined);
@@ -66,12 +62,12 @@ describe('(De)memoization cache', function () {
 });
 
 
-describe('Memoization', function () {
-  beforeEach(function (done) {
+suite('Memoization', function () {
+  setup(function (done) {
     memcached.flush(done);
   });
 
-  it('should work', function (done) {
+  test('actually works', function (done) {
     var a_calls = 0;
 
     var a = memoizer.memoize(function (callback) {
@@ -88,7 +84,7 @@ describe('Memoization', function () {
     });
   });
 
-  it('should fail gracefully without working memcached', function (done) {
+  test('fails gracefully without working memcached', function (done) {
     var a_calls = 0;
 
     var a = memoizerBroken.memoize(function (callback) {
@@ -105,7 +101,7 @@ describe('Memoization', function () {
     });
   });
 
-  it('should work with custom ttl', function (done) {
+  test('works with custom ttl', function (done) {
     this.timeout(5000); // longer timeout for ttl test
     var a_calls = 0;
 
@@ -127,7 +123,7 @@ describe('Memoization', function () {
     });
   });
 
-  it('should create working signatures/hash keys', function (done) {
+  test('creates working signatures/hash keys', function (done) {
     var a_calls = 0;
 
     var a = memoizer.memoize(function (param, callback) {
@@ -155,7 +151,7 @@ describe('Memoization', function () {
     });
   });
 
-  it('should work with complex object results', function (done) {
+  test('works with complex object results', function (done) {
     var a = memoizer.memoize(function (param, callback) {
       callback(null, { 'param': param });
     }, 'a');
@@ -173,7 +169,7 @@ describe('Memoization', function () {
     });
   });
 
-  it('should maintain context', function (done) {
+  test('maintains context', function (done) {
     var a_calls = 0;
 
     this.aRandomProperty = 42;
@@ -195,12 +191,12 @@ describe('Memoization', function () {
 });
 
 
-describe('Dememoization', function () {
-  beforeEach(function (done) {
+suite('Dememoization', function () {
+  setup(function (done) {
     memcached.flush(done);
   });
 
-  it('should work', function (done) {
+  test('actually works', function (done) {
     var a_calls = 0;
 
     var a = memoizer.memoize(function (callback) {
