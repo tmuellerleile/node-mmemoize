@@ -1,17 +1,30 @@
-var mmemoize = function (memcached, config) {
+var mmemoize = function () {
   var crypto = require('crypto');
+  var Memcached = require('memcached');
+  var memcached;
 
   var that = {};
+
+  if (arguments.length == 0) {
+    throw new Error('No memcached connection string/object given.');
+    return null;
+  } else if (typeof arguments[0] === 'object' && arguments[0].connect !== undefined) {
+    // found a Memcached() instance by duck typing, use it:
+    memcached = arguments[0];
+  } else if (arguments.length == 1) {
+    memached = new Memcached(arguments[0]);
+  } else {
+    memcached = new Memcached(arguments[0], arguments[1]);
+  }
 
   var configDefaults = {
     ttl: 120,
     hashAlgorithm: 'sha1'
   };
-  var cProp;
-  if (config === undefined) {
-    config = {};
-  }
-  for (cProp in configDefaults) {
+
+  var config = (arguments.length > 1 && Array.prototype.pop.call(arguments)) || {};
+
+  for (var cProp in configDefaults) {
     if (configDefaults.hasOwnProperty(cProp) && config[cProp] === undefined) {
       config[cProp] = configDefaults[cProp];
     }
@@ -70,6 +83,11 @@ var mmemoize = function (memcached, config) {
     return fct.dememoize();
   };
   that.dememoize = dememoize;
+
+  var getConfig = function () {
+    return { ttl: config.ttl, hashAlgorithm: config.hashAlgorithm };
+  };
+  that.getConfig = getConfig;
 
   // PRIVATE METHODS:
   var calcKey = function (prefix, args) {

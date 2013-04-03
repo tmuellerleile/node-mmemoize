@@ -1,14 +1,20 @@
 var assert = require('assert');
 
-var Memcached = require('memcached'),
-    async = require('async');
-
-var memcached = new Memcached('localhost:11211', { timeout: 100, retries: 1, retry: 1 });
-var memcachedBroken = new Memcached('localhost:9876', { timeout: 1, retries: 0, retry: 1 });
-
+var Memcached = require('memcached');
+var async = require('async');
 var mmemoize = require('../');
-var memoizer = mmemoize(memcached, { ttl: 10 }); // no need for long ttls here
-var memoizerBroken = mmemoize(memcachedBroken, { ttl: 10 }); // no need for long ttls here
+
+// we use several different mecached/mmemoizer combinations here:
+// "separate" memcached:
+var separateMemcached = new Memcached('localhost:11211', { timeout: 100, retries: 1, retry: 1 }); // no need for long ttls here
+var memoizerSeparateMemcached = mmemoize(separateMemcached, { ttl: 10 }); // no need for long ttls here
+
+// "embedded" memcached (for our testing setup they actually have to be on the
+// same instance):
+var memoizer = mmemoize('localhost:11211', { timeout: 100, retries: 1, retry: 1 }, { ttl: 10 });
+
+// intentionally broken memcached/mmemoizer:
+var memoizerBroken = mmemoize('localhost:9876', { timeout: 1, retries: 0, retry: 1 }, { ttl: 10 });
 
 
 suite('Baseline', function () {
@@ -23,6 +29,12 @@ suite('Baseline', function () {
       assert.deepEqual(result, [4, 4, 4, 4]);
       done();
     });
+  });
+
+  test('initialization works', function () {
+    assert.strictEqual(memoizer.getConfig().ttl, 10);
+    assert.strictEqual(memoizerSeparateMemcached.getConfig().ttl, 10);
+    assert.strictEqual(memoizer.getConfig().hashAlgorithm, 'sha1');
   });
 });
 
@@ -64,13 +76,30 @@ suite('(De)memoization cache', function () {
 
 suite('Memoization', function () {
   setup(function (done) {
-    memcached.flush(done);
+    separateMemcached.flush(done);
   });
 
-  test('actually works', function (done) {
+  test('actually works in "embedded" memcached', function (done) {
     var a_calls = 0;
 
     var a = memoizer.memoize(function (callback) {
+      a_calls++;
+      callback(null, 2 * 2);
+    }, 'a');
+
+    async.series([
+      a, a, a, a // -> 1 test call inside a
+    ], function (err, result) {
+      assert.deepEqual(result, [4, 4, 4, 4]);
+      assert.strictEqual(a_calls, 1);
+      done();
+    });
+  });
+
+  test('actually works in separate memcached', function (done) {
+    var a_calls = 0;
+
+    var a = memoizerSeparateMemcached.memoize(function (callback) {
       a_calls++;
       callback(null, 2 * 2);
     }, 'a');
@@ -193,7 +222,7 @@ suite('Memoization', function () {
 
 suite('Dememoization', function () {
   setup(function (done) {
-    memcached.flush(done);
+    separateMemcached.flush(done);
   });
 
   test('actually works', function (done) {
