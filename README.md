@@ -39,7 +39,7 @@ Send config object as the last parameter of mmemoize(), use the following option
 - `hashAlgorithm`: Algorithm used for hashing function arguments in memcached keys, set to `null` for no hashing at all, for possible values see [node.js' crypto documentation](http://nodejs.org/docs/latest/api/crypto.html#crypto.createHash); default: `sha1`
 
 ## Deployment dependencies
-- [node-memcached](https://github.com/3rd-Eden/node-memcached) (of course)
+- [memcached](http://memcached.org/) (of course)
 
 ## Tests
 - using [mocha](http://visionmedia.github.com/mocha/)
