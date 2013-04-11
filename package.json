@@ -4,6 +4,7 @@
   "description": "Memoize asynchronous functions using memcached",
   "keywords": ["memoize", "memcached"],
   "author": "Tobias Muellerleile <tobias@muellerleile.net> (http://tobias.muellerleile.net)",
+  "license": "MIT",
   "main": "index",
   "repository": {
     "type": "git",
