@@ -45,3 +45,7 @@ Send config object as the last parameter of mmemoize(), use the following option
 - using [mocha](http://visionmedia.github.com/mocha/)
 - with running memcached instance (of course)
 - `$ mocha`
+
+## License
+
+MIT (see LICENSE)
