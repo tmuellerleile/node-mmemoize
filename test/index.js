@@ -1,3 +1,4 @@
+/* global suite: false, test: false, setup: false */
 var assert = require('assert');
 
 var Memcached = require('memcached');
@@ -6,15 +7,26 @@ var mmemoize = require('../');
 
 // we use several different mecached/mmemoizer combinations here:
 // "separate" memcached:
-var separateMemcached = new Memcached('localhost:11211', { timeout: 100, retries: 1, retry: 1 }); // no need for long ttls here
-var memoizerSeparateMemcached = mmemoize(separateMemcached, { ttl: 10 }); // no need for long ttls here
+var separateMemcached = new Memcached(
+  'localhost:11211',
+  { timeout: 100, retries: 1, retry: 1 } // no need for long ttls here
+);
+var memoizerSeparateMemcached = mmemoize(separateMemcached, { ttl: 10 });
 
 // "embedded" memcached (for our testing setup they actually have to be on the
 // same instance):
-var memoizer = mmemoize('localhost:11211', { timeout: 100, retries: 1, retry: 1 }, { ttl: 10 });
+var memoizer = mmemoize(
+  'localhost:11211',
+  { timeout: 100, retries: 1, retry: 1 },
+  { ttl: 10 }
+);
 
 // intentionally broken memcached/mmemoizer:
-var memoizerBroken = mmemoize('localhost:9876', { timeout: 1, retries: 0, retry: 1 }, { ttl: 10 });
+var memoizerBroken = mmemoize(
+  'localhost:9876',
+  { timeout: 1, retries: 0, retry: 1 },
+  { ttl: 10 }
+);
 
 
 suite('Baseline', function () {
@@ -210,7 +222,8 @@ suite('Memoization', function () {
     a = memoizer.memoize(a, 'a');
 
     async.series([
-      a.bind(this), a.bind(this), a.bind(this), a.bind(this) // -> 1 test call inside a
+      a.bind(this), a.bind(this), a.bind(this), a.bind(this)
+        // -> 1 test call inside a
     ], function (err, result) {
       assert.deepEqual(result, [42, 42, 42, 42]);
       assert.strictEqual(a_calls, 1);
@@ -243,14 +256,16 @@ suite('Dememoization', function () {
           callback(null, true);
         },
         function (callback) { // -> result in 1 call of a
-          a(callback); // we need to wrap these calls for a() inside functions, since otherwise they will be cached in memoized form inside the function series array
+          a(callback); // we need to wrap these calls for a() inside functions,
+          // since otherwise they will be cached in memoized form inside the
+          // function series array
         },
         function (callback) {
           a(callback); // and 1 last call of a
         }
       ], function (err, result) {
         assert.deepEqual(result, [true, 4, 4]);
-        assert.strictEqual(a_calls, 3)
+        assert.strictEqual(a_calls, 3);
         done();
       });
     });
