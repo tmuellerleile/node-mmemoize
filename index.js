@@ -12,7 +12,7 @@ var mmemoize = function () {
     // found a Memcached() instance by duck typing, use it:
     memcached = arguments[0];
   } else if (arguments.length == 1) {
-    memached = new Memcached(arguments[0]);
+    memcached = new Memcached(arguments[0]);
   } else {
     memcached = new Memcached(arguments[0], arguments[1]);
   }
