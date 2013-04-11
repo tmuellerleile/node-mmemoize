@@ -5,10 +5,10 @@ var mmemoize = function () {
 
   var that = {};
 
-  if (arguments.length == 0) {
+  if (arguments.length === 0) {
     throw new Error('No memcached connection string/object given.');
-    return null;
-  } else if (typeof arguments[0] === 'object' && arguments[0].connect !== undefined) {
+  } else if (typeof arguments[0] === 'object' &&
+      arguments[0].connect !== undefined) {
     // found a Memcached() instance by duck typing, use it:
     memcached = arguments[0];
   } else if (arguments.length == 1) {
@@ -22,7 +22,8 @@ var mmemoize = function () {
     hashAlgorithm: 'sha1'
   };
 
-  var config = (arguments.length > 1 && Array.prototype.pop.call(arguments)) || {};
+  var config = (arguments.length > 1 &&
+    Array.prototype.pop.call(arguments)) || {};
 
   for (var cProp in configDefaults) {
     if (configDefaults.hasOwnProperty(cProp) && config[cProp] === undefined) {
@@ -48,17 +49,24 @@ var mmemoize = function () {
       }
       key = calcKey(keyPrefix, args);
       memcached.get(key, function (err, mcdResult) {
-        if (err !== undefined || mcdResult === undefined || mcdResult === false) { // memcache error or miss:
+        if (err !== undefined ||
+            mcdResult === undefined ||
+            mcdResult === false) { // memcache error or miss:
           args.push(function () {  // register our new callback:
             var fctResult = Array.prototype.slice.call(arguments);
-            memcached.set(key, JSON.stringify(fctResult), ttl, function (err, result) {
-              // NOTE that we *ignore any memcache errors* here!
-              if (fctCallback !== undefined) {
-                fctCallback.apply(_this, fctResult); // call original callback
+            memcached.set(key,
+              JSON.stringify(fctResult),
+              ttl,
+              function (err, result) {
+                // NOTE that we *ignore any memcache errors* here!
+                if (fctCallback !== undefined) {
+                  fctCallback.apply(_this, fctResult); // call original callback
+                }
               }
-            });
+            );
           });
-          fct.apply(_this, args); // actually perform function call for memoization
+          // actually perform function call for memoization:
+          fct.apply(_this, args);
         }
         else { // cache hit:
           mcdResult = JSON.parse(mcdResult);
@@ -78,7 +86,8 @@ var mmemoize = function () {
   };
   that.memoize = memoize;
 
-  var dememoize = function (fct) { // shamelessly borrowed from https://github.com/caolan/async
+  // shamelessly borrowed from https://github.com/caolan/async:
+  var dememoize = function (fct) {
     if (fct.dememoize === undefined) { return fct; } // not memoized
     return fct.dememoize();
   };
