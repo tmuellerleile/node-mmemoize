@@ -36,7 +36,7 @@ Memoize asynchronous function calls using memcached
 Send config object as the last parameter of mmemoize(), use the following options:
 
 - `ttl`: Default key TTL in seconds; default: `120`
-- `hashAlgorithm`: Algorithm used for hashing function arguments in memcached keys, set to `null` for no hashing at all, for possible values see [node.js' crypto documentation](http://nodejs.org/docs/latest/api/crypto.html#crypto.createHash); default: `sha1`
+- `hashAlgorithm`: Algorithm used for hashing function arguments in memcached keys, set to `null` for no hashing at all, for possible values see [Node's crypto documentation](http://nodejs.org/docs/latest/api/crypto.html#crypto.createHash); default: `sha1`
 
 ## Deployment dependencies
 - [memcached](http://memcached.org/) (of course)
