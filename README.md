@@ -42,7 +42,7 @@ Send config object as the last parameter of mmemoize(), use the following option
 - [memcached](http://memcached.org/) (of course)
 
 ## Tests
-- using [mocha](http://visionmedia.github.com/mocha/)
+- using [mocha](https://mochajs.org/)
 - with running memcached instance (of course)
 - `$ mocha`
 
